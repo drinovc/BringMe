@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Postrezi.me</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<link rel="stylesheet" href="jquery.mobile-1.4.5.css" />
+	<script src="jquery-2.1.1.js"></script>
+	<script src="jquery.mobile-1.4.5.js"></script>
+	<script src="common.js"></script>
+	<script src="app.js"></script>
+</head>
+<body>
+
+<div data-role="page">
+	<div data-role="header" data-position="fixed">
+		<h1>Postrezi.me</h1>
+	</div>
+
+	<div role="main" class="ui-content">
+	
+		<div data-theme="a" data-form="ui-body-a" class="ui-body ui-body-a ui-corner-all">
+			<p>Dobrodošli v našem baru.</p>
+			<p>Sedite za mizo</p>
+			<h3 id="text-table-name">&nbsp;<h3>
+		</div>
+	
+		<div data-role="controlgroup">
+			<button id="btn-call-waiter" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-user">Prikliči natakarja</button>
+			<button id="btn-request-receipt" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-check">Zahtevaj račun</button>
+		</div>
+		
+		<div data-role="controlgroup">
+			<button id="btn-info" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-info">Info</button>
+		</div>		
+		
+	</div>
+
+	<div data-role="footer" data-position="fixed">
+		<h1>Powered by Banda</h1>
+	</div>
+</div>
+
+<div data-role="dialog" id="msg" data-title="Confirm">
+	<div data-role="content">
+		<h3 class="msg-title">Title</h3>
+		<p class="msg-desc">Description</p>
+		<a href="#" class="btn-yes" data-role="button" data-theme="b" data-rel="back">Yes</a>
+		<a href="#" class="btn-no" data-role="button" data-theme="c" data-rel="back">No</a>
+	</div>
+</div>
+
+</body>
+</html>
