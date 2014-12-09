@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.widget.EditText;
+import android.widget.ListView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -24,6 +25,7 @@ public class MainActivity extends Activity {
 	public RequestDataSource	requestDataSource;
 	EditText					text;
 	String						requestString;
+	ListView					requestsList;
 	
 	public static final String	MIME_JAVASCRIPT	= "text/javascript";
 	public static final String	MIME_CSS		= "text/css";
@@ -49,7 +51,8 @@ public class MainActivity extends Activity {
 		}
 		Log.w("Httpd", "Web server initialized.");
 
-		text = (EditText) findViewById(R.id.requests);
+		//text = (EditText) findViewById(R.id.requests);
+		requestsList = (ListView) findViewById(R.id.requestsList);
 
 	}
 
