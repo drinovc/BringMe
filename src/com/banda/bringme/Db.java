@@ -10,6 +10,7 @@ public class Db {
 		public static final String TABLE_NAME = "requests";
 		public static final String ID = "id";
 		public static final String TABLE = "tableName";
+		public static final String TYPE = "type";
 	}
 
 }

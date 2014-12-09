@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper{
 	
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 	private static final String DATABASE_NAME = "RequestDatabase.db";
 	
 	private static DbHelper instance;
@@ -41,7 +41,8 @@ public class DbHelper extends SQLiteOpenHelper{
 		db.execSQL(
 			"CREATE TABLE " + Db.Request.TABLE_NAME + " (" +
 			Db.Request.ID + " INTEGER PRIMARY KEY, " +
-			Db.Request.TABLE + " TEXT" +
+			Db.Request.TABLE + " TEXT, " +
+			Db.Request.TYPE + " TEXT" +
 			");"
 		);
 	}

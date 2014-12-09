@@ -50,8 +50,11 @@ public class RequestsAdapter extends BaseAdapter {
 		View rowView = inflater.inflate(R.layout.list_item_request, null, true);
 		Request request = requests.get(position);
 		
-		TextView caption = (TextView) rowView.findViewById(R.id.requestTitle);
-		caption.setText(request.TABLE);	
+		TextView requestTitle = (TextView) rowView.findViewById(R.id.requestTitle);
+		requestTitle.setText(request.table);	
+		
+		TextView requestDescription  = (TextView) rowView.findViewById(R.id.requestDescription);
+		requestDescription.setText(request.type);
 				
 		return rowView;
 	}

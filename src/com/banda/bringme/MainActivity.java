@@ -6,9 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.FileNameMap;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.http.impl.client.RequestWrapper;
+
+import adapters.RequestsAdapter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -26,7 +30,9 @@ public class MainActivity extends Activity {
 	EditText					text;
 	String						requestString;
 	ListView					requestsList;
-	
+	RequestsAdapter				requestsAdapter;
+	List<Request>				requests;
+		
 	public static final String	MIME_JAVASCRIPT	= "text/javascript";
 	public static final String	MIME_CSS		= "text/css";
 	public static final String	MIME_JPEG		= "image/jpeg";
@@ -52,8 +58,17 @@ public class MainActivity extends Activity {
 		Log.w("Httpd", "Web server initialized.");
 
 		//text = (EditText) findViewById(R.id.requests);
+		
+		requests = new ArrayList<Request>();
+		
+		requestDataSource.open();
+		requests = requestDataSource.getAllEntries();
+		requestDataSource.close();		
+		
+		requestsAdapter = new RequestsAdapter(MainActivity.this, requests);
 		requestsList = (ListView) findViewById(R.id.requestsList);
-
+		requestsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		requestsList.setAdapter(requestsAdapter);
 	}
 
 	// DON'T FORGET to stop the server
@@ -76,14 +91,16 @@ public class MainActivity extends Activity {
 		void refreshRequests() {
 			main.runOnUiThread(new Runnable() {
 				public void run() {
-					text.setText(requestString);
+					requestsAdapter.updateRequests(requests);
+					requestsAdapter.notifyDataSetChanged();
+					//text.setText(requestString);
 				}
 			});
 		}
 
 		@Override
 		public Response serve(String uri, Method method, Map<String, String> header, Map<String, String> parameters, Map<String, String> files) {
-
+			
 			String mimeType = MIME_HTML;
 
 			if (uri.startsWith("/api")) {
@@ -92,22 +109,19 @@ public class MainActivity extends Activity {
 				if (uriPieces.length > 1) {
 					if (uriPieces[2].endsWith("request")) {
 						if (parameters.containsKey("table")) {
+							
 							Request r = new Request();
-							r.TABLE = parameters.get("table");
+							r.table = parameters.get("table");
+							r.type = parameters.get("type") + " - " + header.get("remote-addr");
+							
 							requestDataSource.open();
 							requestDataSource.addNewRequest(r);
-							List<Request> requests = requestDataSource.getAllEntries();
-
-							main.requestString = "";
-
-							for (int i = 0; i < requests.size(); i++) {
-								Request s = requests.get(i);
-								main.requestString += "Request at table: " + s.TABLE + "\n";
-							}
-							refreshRequests();
+							requests = requestDataSource.getAllEntries();
 							requestDataSource.close();
+							
+							refreshRequests();
 
-							return new NanoHTTPD.Response("API request handled. Table = " + r.TABLE);
+							return new NanoHTTPD.Response("API request handled. Table = " + r.table);
 						}
 					}
 				}

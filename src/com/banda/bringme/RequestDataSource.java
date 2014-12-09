@@ -27,16 +27,16 @@ public class RequestDataSource {
 	}
 
 	public void addNewRequest(Request r){
-		String sql = "INSERT INTO " + Db.Request.TABLE_NAME + 
-				" (" + Db.Request.TABLE + ")" +
+		String sql = "INSERT INTO " + Db.Request.TABLE_NAME +
+				" (" + Db.Request.TABLE + ", " + Db.Request.TYPE + ")" +
 				" VALUES " + 
-				"('" + r.TABLE + "')";
+				"('" + r.table + "','" + r.type + "')";
 		database.execSQL(sql);
 	}
 	
 	public List<Request> getAllEntries() {
 		List<Request> list = new ArrayList<Request>();
-		String sql = "SELECT * FROM " + Db.Request.TABLE_NAME + ";";
+		String sql = "SELECT * FROM " + Db.Request.TABLE_NAME + " ORDER BY ID DESC;";
 		Cursor cursor = database.rawQuery(sql, null);
 		cursor.moveToFirst();
 		while (!cursor.isAfterLast()) {
@@ -48,7 +48,7 @@ public class RequestDataSource {
 
 	public Cursor getAllEntriesCursor() {
 		String sql = "SELECT * FROM " + Db.Request.TABLE_NAME
-				+ " ORDER BY ID ASC;";
+				+ " ORDER BY ID DESC;";
 		Cursor cursor = database.rawQuery(sql, null);
 		cursor.moveToFirst();
 		return cursor;
@@ -63,7 +63,8 @@ public class RequestDataSource {
 	private Request cursorToRequest(Cursor cursor) {
 		Request entry = new Request();
 		entry.ID = cursor.getInt(0);
-		entry.TABLE = cursor.getString(1);
+		entry.table = cursor.getString(1);
+		entry.type = cursor.getString(2);
 		return entry;
 	}
 
