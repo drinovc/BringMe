@@ -9,6 +9,8 @@ $(document).ready(function() {
 	
 	var table = getUrlParam("table" || "neznana");
 	$("#text-table-name").text(table);
+	
+	renderListItems();
 });
 
 function callWaiter(e) {
@@ -47,4 +49,14 @@ function requestReceipt(e) {
 
 function info(e) {
 	alertMsg("Info", "To je prototip aplikacije za naročanje hrane in pijače v barih in restavracijah preko skeniranja NFC nalepk z mobilnim telefonom.");
+}
+
+function renderListItems() {
+	var listString = "";
+	for(var i = 0; i < 100; i++) {
+		//listString += "<li><a href='#'>Test " + i + "<span class='ui-li-count'>" + i + "</span></a></li>";
+		listString += "<li>Test " + i + "<span class='ui-li-count'>" + i + "</span></li>";
+	}	
+	$("#list-test").append(listString);
+	$("#list-test").listview("refresh");
 }

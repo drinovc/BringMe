@@ -5,7 +5,10 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-	<link rel="stylesheet" href="jquery.mobile-1.4.5.css" />
+	<!--link id="css-default" rel="stylesheet" href="jquery.mobile-1.4.5.css" /-->
+	<link id="css-flat" rel="stylesheet" type="text/css" href="theme-flat/jquery.mobile.flatui.css" />
+	<!--link id="css-square" rel="stylesheet" type="text/css" href="theme-square/jquery.mobile.squareui.css" /-->
+	<link rel="stylesheet" type="text/css" href="app.css" />
 	<script src="jquery-2.1.1.js"></script>
 	<script src="jquery.mobile-1.4.5.js"></script>
 	<script src="common.js"></script>
@@ -13,30 +16,93 @@
 </head>
 <body>
 
-<div data-role="page">
+<div data-role="page" id="glavna">
 	<div data-role="header" data-position="fixed">
 		<h1>Postrezi.me</h1>
 	</div>
-
 	<div role="main" class="ui-content">
-	
-		<div data-theme="a" data-form="ui-body-a" class="ui-body ui-body-a ui-corner-all">
+		<div data-theme="a" data-form="ui-body-a" class="ui-body ui-body-a ui-corner-all text-center">
 			<p>Dobrodošli v našem baru.</p>
-			<p>Sedite za mizo</p>
-			<h3 id="text-table-name">&nbsp;<h3>
-		</div>
-	
-		<div data-role="controlgroup">
+			<h4>Miza: <span id="text-table-name">&nbsp;</span></h4>
+		</div>	
+		<div data-role="controlgroup" data-theme="b">
 			<button id="btn-call-waiter" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-user">Prikliči natakarja</button>
 			<button id="btn-request-receipt" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-check">Zahtevaj račun</button>
-		</div>
-		
-		<div data-role="controlgroup">
-			<button id="btn-info" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-info">Info</button>
-		</div>		
-		
+		</div>	
+		<div data-role="controlgroup" data-theme="e">
+			<a href="#oceni" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-star">Podaj oceno</a>	
+		</div>	
+		<div data-role="controlgroup" data-theme="a">
+			<!--button id="btn-info" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-info">Info</button-->
+			<a href="#info" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-info">Info</a>
+		</div>	
+		<div data-role="controlgroup" data-theme="f">
+			<a href="#test" class="ui-btn ui-corner-all ui-btn-icon-left ui-icon-alert">Test</a>
+		</div>			
 	</div>
+	<div data-role="footer" data-position="fixed">
+		<h1>Powered by Banda</h1>
+	</div>
+</div>
 
+<div data-role="page" id="oceni">
+	<div data-role="header" data-position="fixed">
+		<h1>Podaj oceno</h1>
+	</div>
+	<div role="main" class="ui-content">
+		<label for="slider-postrezba">Postrežba</label>
+		<input type="range" name="slider-fill" id="slider-postrezba" value="5" min="0" max="10" step="1" data-highlight="true" />
+		<label for="slider-okus">Okus</label>
+		<input type="range" name="slider-fill" id="slider-okus" value="5" min="0" max="10" step="1" data-highlight="true" />
+		<label for="slider-cena">Cena</label>
+		<input type="range" name="slider-fill" id="slider-cena" value="5" min="0" max="10" step="1" data-highlight="true" />	
+		<br />
+		<div data-role="controlgroup" data-theme="b">
+			<a href="#glavna" class="ui-btn ui-corner-all">OK</a>	
+		</div>	
+		<div data-role="controlgroup" data-theme="d">
+			<a href="#glavna" class="ui-btn ui-corner-all">Prekliči</a>	
+		</div>	
+	</div>
+	<div data-role="footer" data-position="fixed">
+		<h1>Powered by Banda</h1>
+	</div>
+</div>
+
+<div data-role="page" id="info">
+	<div data-role="header" data-position="fixed">
+		<h1>Info</h1>
+	</div>
+	<div role="main" class="ui-content text-center">
+		<h2>Development team</h2>
+		<p>
+			<p>Blaž Divjak</p>
+			<p>Matic Odar</p>
+			<p>Primož Bajželj</p>
+			<p>Rok Drinovec</p>
+		</p>		
+		<div data-role="controlgroup" data-theme="b">
+			<a href="#glavna" class="ui-btn ui-corner-all">OK</a>	
+		</div>	
+	</div>
+	<br />
+	<div data-role="footer" data-position="fixed">
+		<h1>Powered by Banda</h1>
+	</div>
+</div>
+
+<div data-role="page" id="test">
+	<div data-role="header" data-position="fixed">
+		<h1>Test</h1>
+	</div>
+	<div role="main" class="ui-content">
+		<div data-role="controlgroup" data-theme="d">
+			<a href="#glavna" class="ui-btn ui-corner-all">Nazaj</a>	
+		</div>
+		<ul id="list-test" data-role="listview" data-inset="false" data-filter="true" data-filter-placeholder="Iskanje...">
+			<!-- dinamično generiran seznam -->
+		</ul>
+	</div>
 	<div data-role="footer" data-position="fixed">
 		<h1>Powered by Banda</h1>
 	</div>

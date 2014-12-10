@@ -112,7 +112,7 @@ public class MainActivity extends Activity {
 							
 							Request r = new Request();
 							r.table = parameters.get("table");
-							r.type = parameters.get("type") + " - " + header.get("remote-addr");
+							r.type = parameters.get("type") + " - " + header.get("http-client-ip");
 							
 							requestDataSource.open();
 							requestDataSource.addNewRequest(r);
