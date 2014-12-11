@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.http.impl.client.RequestWrapper;
-
 import adapters.RequestsAdapter;
 import android.os.Bundle;
 import android.os.Environment;
@@ -107,12 +105,14 @@ public class MainActivity extends Activity {
 				String[] uriPieces = uri.split("/");
 
 				if (uriPieces.length > 1) {
-					if (uriPieces[2].endsWith("request")) {
+					if (uriPieces[2].equals("request")) {
 						if (parameters.containsKey("table")) {
 							
 							Request r = new Request();
-							r.table = parameters.get("table");
-							r.type = parameters.get("type") + " - " + header.get("http-client-ip");
+							r.setTable(parameters.get("table"));
+							r.setType(parameters.get("type")); 
+							r.setComment(parameters.get("comment"));
+							r.setIpAddr(header.get("remote-addr"));
 							
 							requestDataSource.open();
 							requestDataSource.addNewRequest(r);
@@ -121,11 +121,11 @@ public class MainActivity extends Activity {
 							
 							refreshRequests();
 
-							return new NanoHTTPD.Response("API request handled. Table = " + r.table);
+							return new NanoHTTPD.Response("Zahteva poslana. Miza " + r.table + "." + " IP " + r.ipAddr);
 						}
 					}
 				}
-				return new NanoHTTPD.Response("Handle API request...");
+				return new NanoHTTPD.Response("Ni zaznane metode za obdevalo zahteve!");
 			}
 			else if (uri.equals("/")) {
 				uri = "/index.html";

@@ -6,8 +6,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper{
 	
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 	private static final String DATABASE_NAME = "RequestDatabase.db";
+	
+	private static final String COMMA = ", ";
 	
 	private static DbHelper instance;
 	
@@ -24,7 +26,7 @@ public class DbHelper extends SQLiteOpenHelper{
 
 	@Override
 	public void onCreate(SQLiteDatabase db) {		
-		createSensorTable(db);
+		createRequestsTable(db);
 	}
 
 	@Override
@@ -37,12 +39,16 @@ public class DbHelper extends SQLiteOpenHelper{
 		onUpgrade(db, oldVersion, newVersion);
 	}
 	
-	private void createSensorTable(SQLiteDatabase db) {
+	private void createRequestsTable(SQLiteDatabase db) {
 		db.execSQL(
 			"CREATE TABLE " + Db.Request.TABLE_NAME + " (" +
 			Db.Request.ID + " INTEGER PRIMARY KEY, " +
-			Db.Request.TABLE + " TEXT, " +
-			Db.Request.TYPE + " TEXT" +
+			Db.Request.TABLE + " TEXT" + COMMA +
+			Db.Request.TYPE + " TEXT" + COMMA +
+			Db.Request.COMMENT  + " TEXT" + COMMA +
+			Db.Request.CREATED  + " TEXT" + COMMA +
+			Db.Request.STATUS  + " INTEGER" + COMMA +
+			Db.Request.IP_ADDR + " TEXT" +
 			");"
 		);
 	}
