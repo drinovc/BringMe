@@ -1,9 +1,12 @@
 package com.banda.bringme;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ import android.widget.ListView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.res.AssetManager;
 
 @SuppressLint("DefaultLocale")
 public class MainActivity extends Activity {
@@ -159,16 +163,31 @@ public class MainActivity extends Activity {
 				mimeType = fileNameMap.getContentTypeFor(uri);
 			}
 
-			FileInputStream mbuffer = null;
+			InputStream is = null;
 			try {
-				File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/www" + uri);
-				mbuffer = new FileInputStream(file);
+				is = getAssets().open("www" + uri);
+				if(is == null) {
+					return new NanoHTTPD.Response(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found");
+				}
 			}
-			catch (FileNotFoundException e) {
+			catch (IOException e) {
 				e.printStackTrace();
-				return new NanoHTTPD.Response(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found");
+				return new NanoHTTPD.Response(Response.Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Internal error");
 			}
-			return new NanoHTTPD.Response(Response.Status.OK, mimeType, mbuffer);
+			return new NanoHTTPD.Response(Response.Status.OK, mimeType, is);
+			
+			/*
+			 * FileInputStream mbuffer = null;
+			 * try {
+			 * 	File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "/www" + uri);
+			 * 	mbuffer = new FileInputStream(file);
+			 * }
+			 * catch (FileNotFoundException e) {
+			 * 	e.printStackTrace();
+			 * 	return new NanoHTTPD.Response(Response.Status.NOT_FOUND, MIME_PLAINTEXT, "Not found");
+			 * }
+			 * return new NanoHTTPD.Response(Response.Status.OK, mimeType, mbuffer);
+			 */			
 
 			/*
 			 * try { // Opening file from SD Card File root =
