@@ -2,7 +2,12 @@
 <resources>
 
     <string name="app_name">BringMe</string>
+    
     <string name="hello_world">Hello world!</string>
+    
     <string name="action_settings">Settings</string>
+    <string name="action_tables">Tables</string>
+    
+    <string name="title_activity_tables">Tables</string>
 
 </resources>

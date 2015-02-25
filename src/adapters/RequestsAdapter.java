@@ -54,7 +54,7 @@ public class RequestsAdapter extends BaseAdapter {
 		requestTitle.setText(request.table);	
 		
 		TextView requestDescription  = (TextView) rowView.findViewById(R.id.requestDescription);
-		requestDescription.setText(request.type);
+		requestDescription.setText("TYPE:" + request.type + " IP:" + request.ipAddr + " COUNT:" + request.count);
 				
 		return rowView;
 	}

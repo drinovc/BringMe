@@ -16,6 +16,7 @@ public class Request implements Serializable{
 	public String created;
 	public long status;
 	public String ipAddr;
+	public int count;
 	
 	public Request() {
 		this.status = STATUS_NEW;
@@ -63,6 +64,10 @@ public class Request implements Serializable{
 	public void setIpAddr(String ipAddr) {
 		this.ipAddr = ipAddr != null ? ipAddr : "";
 	}
-	
-	
+	public int getCount() {
+		return count;
+	}
+	public void setCount(int count) {
+		this.count = count;
+	}	
 }
