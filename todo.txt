@@ -1,0 +1,19 @@
+BringMe todo:
+1. Table editor mode
+	- Add new table (puts it in middle, opens modal editor window, saves it in database)
+	- Set Type (if object, show number and count)
+	- Select Shape (if rectangle, show BSize)
+	- Set Name
+	- Set ASize and BSize
+	- Set Color
+	- Set Description
+	- Set number
+	- Set count
+	- Drag to change position (in %)
+	- Each change makes a change in local instance -> updates the canvas
+	- Save button to save object in database
+2. When opening canvas view of tables, load all tables from DB and create a local array of them.
+3. Draw tables from local array on canvas
+4. Make touch listeners (doubleclick for info/editor, drag to change position if editor enabled)
+5. Listeners for table requests that draw onto tables, if editor disabled
+6. List view of tables with requests, with details easy visible

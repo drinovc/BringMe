@@ -1,12 +1,7 @@
 package com.banda.bringme;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.FileNameMap;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -15,14 +10,15 @@ import java.util.Map;
 
 import adapters.RequestsAdapter;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ListView;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.res.AssetManager;
+import android.content.Intent;
 
 @SuppressLint("DefaultLocale")
 public class MainActivity extends Activity {
@@ -52,13 +48,14 @@ public class MainActivity extends Activity {
 		server = new WebServer(this);
 		try {
 			server.start();
+			String ipAddress = Helper.checkWifiConnection(this);
+			Log.w("Httpd", "IP: " + ipAddress);
 		}
-		catch (IOException ioe) {
+		catch (Exception ioe) {
 			Log.w("Httpd", ioe.getMessage());
 			Log.w("Httpd", "The server could not start.");
 		}
 		Log.w("Httpd", "Web server initialized.");
-
 		//text = (EditText) findViewById(R.id.requests);
 		
 		requests = new ArrayList<Request>();
@@ -71,6 +68,28 @@ public class MainActivity extends Activity {
 		requestsList = (ListView) findViewById(R.id.requestsList);
 		requestsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		requestsList.setAdapter(requestsAdapter);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+		int id = item.getItemId();
+		if (id == R.id.action_tables) {
+			Intent intent = new Intent(this, Tables.class);
+			startActivity(intent);
+			
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	// DON'T FORGET to stop the server
@@ -105,6 +124,8 @@ public class MainActivity extends Activity {
 			
 			String mimeType = MIME_HTML;
 
+			Log.w("Httpd", "Request received");
+			
 			if (uri.startsWith("/api")) {
 				String[] uriPieces = uri.split("/");
 

@@ -32,6 +32,7 @@ public class DbHelper extends SQLiteOpenHelper{
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		db.execSQL("DROP TABLE IF EXISTS " + Db.Request.TABLE_NAME + ";");
+		db.execSQL("DROP TABLE IF EXISTS " + Db.Table.TABLE_NAME + ";");
 		onCreate(db);
 	}
 	
@@ -49,6 +50,22 @@ public class DbHelper extends SQLiteOpenHelper{
 			Db.Request.CREATED  + " TEXT" + COMMA +
 			Db.Request.STATUS  + " INTEGER" + COMMA +
 			Db.Request.IP_ADDR + " TEXT" +
+			");"
+		);
+		db.execSQL(
+			"CREATE TABLE " + Db.Table.TABLE_NAME + " (" +
+			Db.Table.ID + " INTEGER PRIMARY KEY, " +
+			Db.Table.TABLE + " TEXT" + COMMA +
+			Db.Table.TYPE + " INTEGER" + COMMA +
+			Db.Table.SHAPE + " INTEGER" + COMMA +
+			Db.Table.DESCRIPTION + " TEXT" + COMMA +
+			Db.Table.XPOSITION + " INTEGER" + COMMA +
+			Db.Table.YPOSITION + " INTEGER" + COMMA +
+			Db.Table.ASIZE + " INTEGER" + COMMA +
+			Db.Table.BSIZE + " INTEGER" + COMMA +
+			Db.Table.COUNT + " INTEGER" + COMMA +
+			Db.Table.NUMBER + " INTEGER" + COMMA +
+			Db.Table.COLOR + " INTEGER" + COMMA +
 			");"
 		);
 	}

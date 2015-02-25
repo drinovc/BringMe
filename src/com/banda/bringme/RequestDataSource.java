@@ -51,9 +51,7 @@ public class RequestDataSource {
 	
 	public List<Request> getAllEntries() {
 		List<Request> list = new ArrayList<Request>();
-		String sql = "SELECT * FROM " + Db.Request.TABLE_NAME + " ORDER BY ID DESC;";
-		Cursor cursor = database.rawQuery(sql, null);
-		cursor.moveToFirst();
+		Cursor cursor = getAllEntriesCursor();
 		while (!cursor.isAfterLast()) {
 			list.add(cursorToRequest(cursor));
 			cursor.moveToNext();
@@ -62,7 +60,26 @@ public class RequestDataSource {
 	}
 
 	public Cursor getAllEntriesCursor() {
-		String sql = "SELECT * FROM " + Db.Request.TABLE_NAME + " ORDER BY ID DESC;";
+		String sql = "SELECT " + 
+				Db.Request.ID + COMMA +
+				Db.Request.TABLE + COMMA + 
+				Db.Request.TYPE + COMMA +
+				Db.Request.COMMENT + COMMA +
+				Db.Request.CREATED + COMMA +
+				Db.Request.STATUS + COMMA +
+				Db.Request.IP_ADDR + COMMA +
+				" (" + 
+					"SELECT COUNT(*) FROM " + Db.Request.TABLE_NAME + 
+					" WHERE " + Db.Request.TABLE + " = R." + Db.Request.TABLE + 
+					" AND " + Db.Request.TYPE + " = R." + Db.Request.TYPE + 
+					" AND " + Db.Request.IP_ADDR + " = R." + Db.Request.IP_ADDR + 
+				") AS count" +
+				" FROM " + Db.Request.TABLE_NAME + " AS R" +
+				" GROUP BY " + 
+				Db.Request.TABLE + COMMA + 
+				Db.Request.TYPE + COMMA +
+				Db.Request.IP_ADDR +
+				" ORDER BY ID DESC;";
 		Cursor cursor = database.rawQuery(sql, null);
 		cursor.moveToFirst();
 		return cursor;
@@ -81,7 +98,8 @@ public class RequestDataSource {
 		entry.comment = cursor.getString(3);
 		entry.created = cursor.getString(4);
 		entry.status = cursor.getLong(5);
-		entry.ipAddr = cursor.getString(6);
+		entry.ipAddr = cursor.getString(6);		
+		entry.count = cursor.getInt(7);
 		return entry;
 	}
 
