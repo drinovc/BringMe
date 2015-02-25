@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
         Log.w("Httpd", "Web server initialized.");
         
         text = (EditText)findViewById(R.id.requests);
-        
     }
 
     // DON'T FORGET to stop the server
