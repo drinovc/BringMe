@@ -1,66 +1,73 @@
 package com.banda.bringme;
 
+import java.util.Hashtable;
+import java.util.List;
+
+import com.banda.bringme.ColorPickerDialog.OnColorChangedListener;
+
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipDescription;
+import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.DragEvent;
+import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.DragShadowBuilder;
+import android.view.View.OnClickListener;
 import android.view.View.OnDragListener;
 import android.view.View.OnLongClickListener;
-import android.widget.AbsoluteLayout;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+import android.widget.Spinner;
 import android.widget.TextView;
 
-public class Tables extends Activity {
+public class Tables extends Activity implements OnColorChangedListener{
 
-	AbsoluteLayout tablesView;
-	TextView miza1; 
-	TextView miza2; 
-	TextView miza3;
-	TextView miza4; 
-	TextView miza5;
-	
-	TextView mizaDrag;
-	
-	
-	private static final String IMAGEVIEW_TAG = "The Android Logo";
+	LinearLayout tablesToolbar;
+	RelativeLayout mainLayout;
+	DrawView drawView;
+	TableDataSource tableDataSource;
+	Hashtable<Long,Table> objects;
+	View details;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_tables);
+		details = createEditorSettings(this);
+		objects = new Hashtable<Long,Table>();
+		tableDataSource = new TableDataSource(this);
+		tableDataSource.open();
+		for(Table table : tableDataSource.getAllEntries()){
+			objects.put(table.getID(),table);
+		}
+		tableDataSource.close();
 		
-		tablesView = (AbsoluteLayout )findViewById(R.id.view_tables);
-		miza1 = (TextView )findViewById(R.id.miza1);
-		miza2 = (TextView )findViewById(R.id.miza2);
-		miza3 = (TextView )findViewById(R.id.miza3);
-		miza4 = (TextView )findViewById(R.id.miza4);
-		miza5 = (TextView )findViewById(R.id.miza5);
+		mainLayout = (RelativeLayout)findViewById(R.id.view_tables);
+		tablesToolbar = (LinearLayout)findViewById(R.id.tablesToolbar);
+		drawView = new DrawView(this);
+		mainLayout.addView(drawView);
+		drawView.setObjects(objects);
 		
-		miza1.setTag(IMAGEVIEW_TAG);
-		miza2.setTag(IMAGEVIEW_TAG);
-		miza3.setTag(IMAGEVIEW_TAG);
-		miza4.setTag(IMAGEVIEW_TAG);
-		miza5.setTag(IMAGEVIEW_TAG);
-		    
-	    // set the listener to the dragging data
-		miza1.setOnLongClickListener(new MyClickListener());
-		miza2.setOnLongClickListener(new MyClickListener());
-		miza3.setOnLongClickListener(new MyClickListener());
-		miza4.setOnLongClickListener(new MyClickListener());
-		miza5.setOnLongClickListener(new MyClickListener());
-		
-	    tablesView.setOnDragListener(new MyDragListener());
+	    //tablesView.setOnDragListener(new MyDragListener());
 		
 	}
 
-	private final class MyClickListener implements OnLongClickListener {
+	/*private final class MyClickListener implements OnLongClickListener {
 
 	    // called when the item is long-clicked
 		@Override
@@ -80,7 +87,7 @@ public class Tables extends Activity {
 	        				0   //no needed flags
 	        			  );
 	        
-	        mizaDrag = (TextView) view;
+	        //mizaDrag = (TextView) view;
 	        
 	        view.setVisibility(View.INVISIBLE);
 	        return true;
@@ -126,24 +133,186 @@ public class Tables extends Activity {
 		    }
 		    return true;
 		}
-	}
-
+	}*/
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.tables, menu);
-		return true;
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.tables, menu);
+	    return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
+	        case R.id.action_editor:
+	        	setEditorVisibility((tablesToolbar.getVisibility()==View.GONE)?View.VISIBLE:View.GONE);
+	        	item.setTitle((tablesToolbar.getVisibility()==View.GONE)?R.string.editor:R.string.editor_disable);
+	            return true;
+	        default:
+	            return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	private void setEditorVisibility(int visibility){
+		tablesToolbar.setVisibility(visibility);
+	}
+	
+	public void addObject(View view){
+		Table table = new Table();
+		tableDataSource.open();
+		tableDataSource.insertTable(table);
+		tableDataSource.close();
+		setEditorSettings(details,table,this,this);
+		details.setVisibility(View.VISIBLE);
 	}
 
 	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
+	public void colorChanged(String key, int color) {
+		long ID = Long.parseLong(key);
+		Table object = objects.get(ID);
+		object.setColor(color);
+		tableDataSource.open();
+		tableDataSource.updateTable(object);
+		tableDataSource.close();
 	}
+	
+	public ColorPickerDialog color;
+	
+	public View createEditorSettings(final Context context){
+		View view = getLayoutInflater().inflate(R.layout.object_details, mainLayout);
+
+		final Spinner spinnerType = (Spinner) view.findViewById(R.id.spinnerType);
+		final Spinner spinnerShape = (Spinner) view.findViewById(R.id.spinnerShape);
+		final EditText tableNumber = (EditText) view.findViewById(R.id.tableNumber);
+		final EditText tableName = (EditText) view.findViewById(R.id.tableName);
+		final EditText tableDescription = (EditText) view.findViewById(R.id.tableDescription);
+		final SeekBar sizeA = (SeekBar) view.findViewById(R.id.sizeA);
+		final SeekBar sizeB = (SeekBar) view.findViewById(R.id.sizeB);
+		final EditText tableCount = (EditText) view.findViewById(R.id.tableCount);
+		final Button pickColor = (Button) view.findViewById(R.id.colorPicker);
+		
+		spinnerType.setAdapter(new ArrayAdapter<Table.Type>(this, android.R.layout.simple_spinner_item, Table.Type.values()));
+		spinnerShape.setAdapter(new ArrayAdapter<Table.Shape>(this, android.R.layout.simple_spinner_item, Table.Shape.values()));
+ 
+		sizeA.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+			@Override
+			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+				long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setAsize(arg1);
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+			}
+			@Override public void onStartTrackingTouch(SeekBar arg0) {}
+			@Override public void onStopTrackingTouch(SeekBar arg0) {}
+		});
+		sizeB.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+			@Override
+			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+				long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setBsize(arg1);
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+			}
+			@Override public void onStartTrackingTouch(SeekBar arg0) {}
+			@Override public void onStopTrackingTouch(SeekBar arg0) {}
+		});
+		tableNumber.addTextChangedListener(new TextWatcher(){
+	        public void afterTextChanged(Editable s) {
+	        	long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setNumber(Integer.parseInt(tableNumber.getText().toString()));
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+	        }
+			@Override public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+			@Override public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+	    });
+		tableName.addTextChangedListener(new TextWatcher(){
+	        public void afterTextChanged(Editable s) {
+	        	long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setTableName(tableName.getText().toString());
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+	        }
+			@Override public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+			@Override public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+	    });
+		tableDescription.addTextChangedListener(new TextWatcher(){
+	        public void afterTextChanged(Editable s) {
+	        	long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setDescription(tableDescription.getText().toString());
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+	        }
+			@Override public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+			@Override public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+	    });
+		tableCount.addTextChangedListener(new TextWatcher(){
+	        public void afterTextChanged(Editable s) {
+	        	long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setCount(Integer.parseInt(tableCount.getText().toString()));
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+	        }
+			@Override public void beforeTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+			@Override public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {}
+	    });
+		pickColor.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View arg0) {
+				long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				color = new ColorPickerDialog(context,
+					new OnColorChangedListener(){
+						@Override
+						public void colorChanged(String key, int color) {
+							long ID = (Long)details.getTag(R.string.table_id);
+							Table object = objects.get(ID);
+							object.setColor(color);
+							tableDataSource.open();
+							tableDataSource.updateTable(object);
+							tableDataSource.close();
+						}			
+				}, "picker", object.getColor(), Color.BLUE);
+				color.show();
+			}
+		});
+		return view;
+	}
+
+	public void setEditorSettings(View view, Table table, final Context context, final OnColorChangedListener listener){
+		final long ID = table.getID();
+		view.setTag(R.string.table_id, ID);
+		
+		Spinner spinnerType = (Spinner) view.findViewById(R.id.spinnerType);
+		Spinner spinnerShape = (Spinner) view.findViewById(R.id.spinnerShape);
+		EditText tableNumber = (EditText) view.findViewById(R.id.tableNumber);
+		EditText tableName = (EditText) view.findViewById(R.id.tableName);
+		EditText tableDescription = (EditText) view.findViewById(R.id.tableDescription);
+		SeekBar sizeA = (SeekBar) view.findViewById(R.id.sizeA);
+		SeekBar sizeB = (SeekBar) view.findViewById(R.id.sizeB);
+		EditText tableCount = (EditText) view.findViewById(R.id.tableCount);
+		
+		spinnerType.setSelection(table.getTypeInt());
+		spinnerShape.setSelection(table.getShapeInt());
+		tableNumber.setText(String.valueOf(table.getNumber()));
+		tableName.setText(table.getTableName());
+		tableDescription.setText(table.getDescription());
+		sizeA.setProgress(table.getAsize());
+		sizeB.setProgress(table.getBsize());
+		tableCount.setText(String.valueOf(table.getCount()));
+	}
+	
 }

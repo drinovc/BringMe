@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper{
 	
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 	private static final String DATABASE_NAME = "RequestDatabase.db";
 	
 	private static final String COMMA = ", ";
@@ -65,7 +65,7 @@ public class DbHelper extends SQLiteOpenHelper{
 			Db.Table.BSIZE + " INTEGER" + COMMA +
 			Db.Table.COUNT + " INTEGER" + COMMA +
 			Db.Table.NUMBER + " INTEGER" + COMMA +
-			Db.Table.COLOR + " INTEGER" + COMMA +
+			Db.Table.COLOR + " INTEGER" +
 			");"
 		);
 	}

@@ -2,23 +2,41 @@ package com.banda.bringme;
 
 import java.io.Serializable;
 
+import android.graphics.Color;
+
 public class Table implements Serializable{
 	
 	public enum Shape {
-	    RECTANGLE,
-	    CIRCLE
+	    RECTANGLE("Rectangle"),
+	    CIRCLE("Circle");
+	    private String friendlyName;
+	    private Shape(String friendlyName){
+	        this.friendlyName = friendlyName;
+	    }
+	    @Override
+	    public String toString(){
+	        return friendlyName;
+	    }
 	}
 	
 	public enum Type {
-	    TABLE,
-	    OBJECT
+	    TABLE("Table"),
+	    OBJECT("Object");
+	    private String friendlyName;
+	    private Type(String friendlyName){
+	        this.friendlyName = friendlyName;
+	    }
+	    @Override
+	    public String toString(){
+	        return friendlyName;
+	    }
 	}
 	
 	public static final int STATUS_NEW = 0;
 	public static final int STATUS_ACKNOWLEDGED = 1;	
 	private static final long serialVersionUID = 1L;
 	
-	private int ID;
+	private long ID;
 	private String tableName;
 	private String description;
 	private Type type;
@@ -32,14 +50,24 @@ public class Table implements Serializable{
 	private int color;
 	
 	public Table() {
-		
+		xposition = 50;
+		yposition = 50;
+		asize = 10;
+		bsize = 10;
+		color = Color.BLUE;
+		type = Type.TABLE;
+		shape = Shape.CIRCLE;
+		number = 1;
+		tableName = "New table";
+		description = "Add description";
+		count = 1;
 	}
 
-	public int getID() {
+	public long getID() {
 		return ID;
 	}
 
-	public void setID(int iD) {
+	public void setID(long iD) {
 		ID = iD;
 	}
 

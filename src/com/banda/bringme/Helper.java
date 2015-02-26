@@ -23,7 +23,7 @@ public class Helper {
 				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 		            @Override
 		            public void onClick(DialogInterface dialog, int which) {
-		            	activity.finish();
+		            	//activity.finish();
 		            }
 				})
 				.show();

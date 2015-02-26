@@ -1,4 +1,4 @@
-<AbsoluteLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/view_tables"
     android:layout_width="match_parent"
@@ -10,50 +10,20 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.banda.bringme.Tables" >
 
-    <TextView
-        android:id="@+id/miza1"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/tablesToolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_x="30dp"
-        android:layout_y="30dp"
-        android:text="Miza 1"
-        android:textSize="50dp" />
-    
-	<TextView
-        android:id="@+id/miza2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="30dp"
-        android:layout_y="90dp"
-        android:text="Miza 2"
-        android:textSize="50dp" />
+        android:visibility="gone" >
 
-    <TextView
-        android:id="@+id/miza3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="30dp"
-        android:layout_y="150dp"
-        android:text="Miza 3"
-        android:textSize="50dp" />
-    
-	<TextView
-        android:id="@+id/miza4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="30dp"
-        android:layout_y="210dp"
-        android:text="Miza 4"
-        android:textSize="50dp" />
-        
-	<TextView
-        android:id="@+id/miza5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_x="30dp"
-        android:layout_y="270dp"
-        android:text="Miza 5"
-        android:textSize="50dp" />
+        <Button
+            android:id="@+id/addObject"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/add"
+            android:onClick="addObject" />
 
+    </LinearLayout>
 
-</AbsoluteLayout>
+</RelativeLayout>

@@ -40,7 +40,7 @@ public class Db {
 		public static final String XPOSITION = "x";
 		public static final String YPOSITION = "y";
 		public static final String ASIZE = "a";
-		public static final String BSIZE = "a";
+		public static final String BSIZE = "b";
 		public static final String NUMBER = "n";
 		public static final String COUNT = "size";
 		public static final String COLOR = "color";
