@@ -1,4 +1,4 @@
-package com.banda.bringme;
+package Database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DbHelper extends SQLiteOpenHelper{
 	
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 2;
 	private static final String DATABASE_NAME = "RequestDatabase.db";
 	
 	private static final String COMMA = ", ";

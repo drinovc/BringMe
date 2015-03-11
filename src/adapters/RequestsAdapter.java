@@ -3,8 +3,8 @@ package adapters;
 import java.util.List;
 
 import com.banda.bringme.R;
-import com.banda.bringme.Request;
 
+import DataSources.Request;
 import android.app.Activity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,10 +51,10 @@ public class RequestsAdapter extends BaseAdapter {
 		Request request = requests.get(position);
 		
 		TextView requestTitle = (TextView) rowView.findViewById(R.id.requestTitle);
-		requestTitle.setText(request.table);	
+		requestTitle.setText(String.valueOf(request.getTableID()));	
 		
 		TextView requestDescription  = (TextView) rowView.findViewById(R.id.requestDescription);
-		requestDescription.setText("TYPE:" + request.type + " IP:" + request.ipAddr + " COUNT:" + request.count);
+		requestDescription.setText("TYPE:" + request.getType().name() + " IP:" + request.getIpAddr());
 				
 		return rowView;
 	}

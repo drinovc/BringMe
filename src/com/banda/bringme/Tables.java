@@ -1,30 +1,24 @@
 package com.banda.bringme;
 
 import java.util.Hashtable;
-import java.util.List;
 
 import com.banda.bringme.ColorPickerDialog.OnColorChangedListener;
 
+import DataSources.Table;
+import DataSources.TableDataSource;
 import android.app.Activity;
-import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
-import android.view.DragEvent;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.DragShadowBuilder;
 import android.view.View.OnClickListener;
-import android.view.View.OnDragListener;
-import android.view.View.OnLongClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,16 +27,16 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 public class Tables extends Activity implements OnColorChangedListener{
 
 	LinearLayout tablesToolbar;
 	RelativeLayout mainLayout;
 	DrawView drawView;
-	TableDataSource tableDataSource;
+	public TableDataSource tableDataSource;
 	Hashtable<Long,Table> objects;
 	View details;
+	boolean settingEvents = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -59,7 +53,7 @@ public class Tables extends Activity implements OnColorChangedListener{
 		
 		mainLayout = (RelativeLayout)findViewById(R.id.view_tables);
 		tablesToolbar = (LinearLayout)findViewById(R.id.tablesToolbar);
-		drawView = new DrawView(this);
+		drawView = new DrawView((Context)this,this);
 		mainLayout.addView(drawView);
 		drawView.setObjects(objects);
 		
@@ -161,8 +155,10 @@ public class Tables extends Activity implements OnColorChangedListener{
 	public void addObject(View view){
 		Table table = new Table();
 		tableDataSource.open();
-		tableDataSource.insertTable(table);
+		table.setID(tableDataSource.insertTable(table));
 		tableDataSource.close();
+		objects.put(table.getID(),table);
+		drawView.setObjects(objects);
 		setEditorSettings(details,table,this,this);
 		details.setVisibility(View.VISIBLE);
 	}
@@ -184,7 +180,7 @@ public class Tables extends Activity implements OnColorChangedListener{
 
 		final Spinner spinnerType = (Spinner) view.findViewById(R.id.spinnerType);
 		final Spinner spinnerShape = (Spinner) view.findViewById(R.id.spinnerShape);
-		final EditText tableNumber = (EditText) view.findViewById(R.id.tableNumber);
+		final EditText tableNumber = (EditText) view.findViewById(R.id.tableNumber2);
 		final EditText tableName = (EditText) view.findViewById(R.id.tableName);
 		final EditText tableDescription = (EditText) view.findViewById(R.id.tableDescription);
 		final SeekBar sizeA = (SeekBar) view.findViewById(R.id.sizeA);
@@ -195,9 +191,51 @@ public class Tables extends Activity implements OnColorChangedListener{
 		spinnerType.setAdapter(new ArrayAdapter<Table.Type>(this, android.R.layout.simple_spinner_item, Table.Type.values()));
 		spinnerShape.setAdapter(new ArrayAdapter<Table.Shape>(this, android.R.layout.simple_spinner_item, Table.Shape.values()));
  
+		spinnerType.setOnItemSelectedListener(new OnItemSelectedListener(){
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				if(settingEvents)
+					return;
+				long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setType(arg2);
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+				if(arg2 == Table.Type.OBJECT.ordinal()){
+					tableNumber.setVisibility(View.GONE);
+					tableCount.setVisibility(View.GONE);
+				}else{
+					tableNumber.setVisibility(View.VISIBLE);
+					tableCount.setVisibility(View.VISIBLE);							
+				}
+			}
+			@Override public void onNothingSelected(AdapterView<?> arg0) {}
+		});
+		spinnerShape.setOnItemSelectedListener(new OnItemSelectedListener(){
+			@Override
+			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+				if(settingEvents)
+					return;
+				long ID = (Long)details.getTag(R.string.table_id);
+				Table object = objects.get(ID);
+				object.setShape(arg2);
+				tableDataSource.open();
+				tableDataSource.updateTable(object);
+				tableDataSource.close();
+				if(arg2 == Table.Shape.CIRCLE.ordinal()){
+					sizeB.setVisibility(View.GONE);
+				}else{
+					sizeB.setVisibility(View.VISIBLE);					
+				}
+			}
+			@Override public void onNothingSelected(AdapterView<?> arg0) {}
+		});		
 		sizeA.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
 			@Override
 			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+				if(settingEvents)
+					return;
 				long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				object.setAsize(arg1);
@@ -211,6 +249,8 @@ public class Tables extends Activity implements OnColorChangedListener{
 		sizeB.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
 			@Override
 			public void onProgressChanged(SeekBar arg0, int arg1, boolean arg2) {
+				if(settingEvents)
+					return;
 				long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				object.setBsize(arg1);
@@ -223,6 +263,8 @@ public class Tables extends Activity implements OnColorChangedListener{
 		});
 		tableNumber.addTextChangedListener(new TextWatcher(){
 	        public void afterTextChanged(Editable s) {
+				if(settingEvents)
+					return;
 	        	long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				object.setNumber(Integer.parseInt(tableNumber.getText().toString()));
@@ -235,6 +277,8 @@ public class Tables extends Activity implements OnColorChangedListener{
 	    });
 		tableName.addTextChangedListener(new TextWatcher(){
 	        public void afterTextChanged(Editable s) {
+				if(settingEvents)
+					return;
 	        	long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				object.setTableName(tableName.getText().toString());
@@ -247,6 +291,8 @@ public class Tables extends Activity implements OnColorChangedListener{
 	    });
 		tableDescription.addTextChangedListener(new TextWatcher(){
 	        public void afterTextChanged(Editable s) {
+				if(settingEvents)
+					return;
 	        	long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				object.setDescription(tableDescription.getText().toString());
@@ -259,6 +305,8 @@ public class Tables extends Activity implements OnColorChangedListener{
 	    });
 		tableCount.addTextChangedListener(new TextWatcher(){
 	        public void afterTextChanged(Editable s) {
+				if(settingEvents)
+					return;
 	        	long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				object.setCount(Integer.parseInt(tableCount.getText().toString()));
@@ -272,6 +320,8 @@ public class Tables extends Activity implements OnColorChangedListener{
 		pickColor.setOnClickListener(new OnClickListener(){
 			@Override
 			public void onClick(View arg0) {
+				if(settingEvents)
+					return;
 				long ID = (Long)details.getTag(R.string.table_id);
 				Table object = objects.get(ID);
 				color = new ColorPickerDialog(context,
@@ -298,13 +348,14 @@ public class Tables extends Activity implements OnColorChangedListener{
 		
 		Spinner spinnerType = (Spinner) view.findViewById(R.id.spinnerType);
 		Spinner spinnerShape = (Spinner) view.findViewById(R.id.spinnerShape);
-		EditText tableNumber = (EditText) view.findViewById(R.id.tableNumber);
+		EditText tableNumber = (EditText) view.findViewById(R.id.tableNumber2);
 		EditText tableName = (EditText) view.findViewById(R.id.tableName);
 		EditText tableDescription = (EditText) view.findViewById(R.id.tableDescription);
 		SeekBar sizeA = (SeekBar) view.findViewById(R.id.sizeA);
 		SeekBar sizeB = (SeekBar) view.findViewById(R.id.sizeB);
 		EditText tableCount = (EditText) view.findViewById(R.id.tableCount);
 		
+		settingEvents=true;
 		spinnerType.setSelection(table.getTypeInt());
 		spinnerShape.setSelection(table.getShapeInt());
 		tableNumber.setText(String.valueOf(table.getNumber()));
@@ -313,6 +364,7 @@ public class Tables extends Activity implements OnColorChangedListener{
 		sizeA.setProgress(table.getAsize());
 		sizeB.setProgress(table.getBsize());
 		tableCount.setText(String.valueOf(table.getCount()));
+		settingEvents=false;
 	}
 	
 }

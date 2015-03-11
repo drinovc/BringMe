@@ -1,9 +1,12 @@
-package com.banda.bringme;
+package DataSources;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.banda.bringme.Db;
+
+import DataSources.Request.Status;
+import Database.Db;
+import Database.DbHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -63,7 +66,7 @@ public class TableDataSource {
 	public int updateTable(Table t){
 		SQLiteStatement statement = database.compileStatement(
 				"UPDATE " + Db.Table.TABLE_NAME +
-				"SET " +
+				" SET " +
 				Db.Table.TABLE + SETTER + COMMA +
 				Db.Table.DESCRIPTION + SETTER + COMMA +
 				Db.Table.TYPE + SETTER + COMMA +
@@ -75,18 +78,19 @@ public class TableDataSource {
 				Db.Table.BSIZE + SETTER + COMMA + 
 				Db.Table.XPOSITION + SETTER + COMMA +
 				Db.Table.YPOSITION + SETTER +
-				" WHERE ID = ?");
+				" WHERE ID" + SETTER + ";");
 		statement.bindString(1, t.getTableName());
 		statement.bindString(2, t.getDescription());
 		statement.bindLong(3, t.getTypeInt());
 		statement.bindLong(4, t.getShapeInt());
-		statement.bindLong(5, t.getNumber());
-		statement.bindLong(6, t.getColor());
-		statement.bindLong(7, t.getAsize());
-		statement.bindLong(8, t.getBsize());
-		statement.bindLong(9, t.getXposition());
-		statement.bindLong(10, t.getYposition());
-		statement.bindLong(11, t.getID());
+		statement.bindLong(5, t.getCount());
+		statement.bindLong(6, t.getNumber());
+		statement.bindLong(7, t.getColor());
+		statement.bindLong(8, t.getAsize());
+		statement.bindLong(9, t.getBsize());
+		statement.bindLong(10, t.getXposition());
+		statement.bindLong(11, t.getYposition());
+		statement.bindLong(12, t.getID());
 		return statement.executeUpdateDelete();
 	}
 	
@@ -102,18 +106,33 @@ public class TableDataSource {
 
 	public Cursor getAllEntriesCursor() {
 		String sql = "SELECT " + 
-				Db.Table.ID + COMMA +
-				Db.Table.TABLE + COMMA +
-				Db.Table.DESCRIPTION + COMMA +
-				Db.Table.TYPE + COMMA +
-				Db.Table.SHAPE + COMMA +
-				Db.Table.NUMBER + COMMA +
-				Db.Table.COLOR + COMMA +
-				Db.Table.ASIZE + COMMA +
-				Db.Table.BSIZE + COMMA +
-				Db.Table.XPOSITION + COMMA +
-				Db.Table.YPOSITION +
-				" FROM " + Db.Table.TABLE_NAME + ";";
+				"A." + Db.Table.ID + COMMA +
+				"A." + Db.Table.TABLE + COMMA +
+				"A." + Db.Table.DESCRIPTION + COMMA +
+				"A." + Db.Table.TYPE + COMMA +
+				"A." + Db.Table.SHAPE + COMMA +
+				"A." + Db.Table.NUMBER + COMMA +
+				"A." + Db.Table.COLOR + COMMA +
+				"A." + Db.Table.ASIZE + COMMA +
+				"A." + Db.Table.BSIZE + COMMA +
+				"A." + Db.Table.XPOSITION + COMMA +
+				"A." + Db.Table.YPOSITION + COMMA +
+				"A." + Db.Table.COUNT + COMMA +
+				" CASE WHEN B." + Db.Request.ID +" IS NULL THEN 0 ELSE " + "COUNT(A." + Db.Table.ID + ") END AS REQUESTS" +
+				" FROM " + Db.Table.TABLE_NAME + " A" +
+				" LEFT JOIN " + Db.Request.TABLE_NAME + " B ON A." + Db.Table.ID + "=B." + Db.Request.TABLE +
+				" AND B." + Db.Request.STATUS + "=" + String.valueOf(Request.Status.OPEN.ordinal()) +
+				" GROUP BY A." + Db.Table.ID + COMMA +
+				"A." + Db.Table.TABLE + COMMA +
+				"A." + Db.Table.DESCRIPTION + COMMA +
+				"A." + Db.Table.TYPE + COMMA +
+				"A." + Db.Table.SHAPE + COMMA +
+				"A." + Db.Table.NUMBER + COMMA +
+				"A." + Db.Table.COLOR + COMMA +
+				"A." + Db.Table.ASIZE + COMMA +
+				"A." + Db.Table.BSIZE + COMMA +
+				"A." + Db.Table.XPOSITION + COMMA +
+				"A." + Db.Table.YPOSITION + ";";
 		Cursor cursor = database.rawQuery(sql, null);
 		cursor.moveToFirst();
 		return cursor;
@@ -137,6 +156,8 @@ public class TableDataSource {
 		entry.setBsize(cursor.getInt(8));
 		entry.setXposition(cursor.getInt(9));
 		entry.setYposition(cursor.getInt(10));
+		entry.setCount(cursor.getInt(11));
+		entry.setRequests(cursor.getInt(12));
 		return entry;
 	}
 }

@@ -5,8 +5,8 @@
     tools:context="com.banda.bringme.MainActivity" >
 
     <ListView
-	    android:id="@+id/requestsList"
-	    android:layout_width="match_parent"
-	    android:layout_height="match_parent" />
+        android:id="@+id/tablesList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </RelativeLayout>

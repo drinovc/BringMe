@@ -8,6 +8,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_tables">Tables</string>
     <string name="table_id">TableID</string>
+    <string name="last_click">lastClick</string>
     
     <string name="title_activity_tables">Tables</string>
     <string name="editor">Enable editor</string>

@@ -1,4 +1,4 @@
-package com.banda.bringme;
+package DataSources;
 
 import java.io.Serializable;
 
@@ -48,6 +48,7 @@ public class Table implements Serializable{
 	private int bsize;
 	private int number;
 	private int color;
+	private int requests;
 	
 	public Table() {
 		xposition = 50;
@@ -57,10 +58,11 @@ public class Table implements Serializable{
 		color = Color.BLUE;
 		type = Type.TABLE;
 		shape = Shape.CIRCLE;
-		number = 1;
-		tableName = "New table";
-		description = "Add description";
-		count = 1;
+		number = 0;
+		tableName = "";
+		description = "";
+		count = 0;
+		requests = 0;
 	}
 
 	public long getID() {
@@ -173,6 +175,14 @@ public class Table implements Serializable{
 	
 	public void setColor(int color) {
 		this.color = color;
+	}
+	
+	public int getRequests(){
+		return requests;
+	}
+	
+	public int setRequests(int requests){
+		return this.requests = requests;
 	}
 	
 }

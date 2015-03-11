@@ -1,9 +1,12 @@
-package com.banda.bringme;
+package DataSources;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.banda.bringme.Db;
+
+import DataSources.Request.Status;
+import Database.Db;
+import Database.DbHelper;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -40,12 +43,12 @@ public class RequestDataSource {
 				Db.Request.IP_ADDR +
 				") VALUES (?, ?, ?, ?, ?, ?)"); 
 		
-		statement.bindString(1, r.table);
-		statement.bindString(2, r.type);	
-		statement.bindString(3, r.comment);
+		statement.bindLong(1, r.getTableID());
+		statement.bindLong(2, r.getTypeInt());	
+		statement.bindString(3, r.getComment());
 		statement.bindString(4, Db.getDate());
-		statement.bindLong(5, Request.STATUS_NEW);
-		statement.bindString(6, r.ipAddr);
+		statement.bindLong(5, Request.Status.OPEN.ordinal());
+		statement.bindString(6, r.getIpAddr());
 		return statement.executeInsert();
 	}
 	
@@ -64,21 +67,12 @@ public class RequestDataSource {
 				Db.Request.ID + COMMA +
 				Db.Request.TABLE + COMMA + 
 				Db.Request.TYPE + COMMA +
-				Db.Request.COMMENT + COMMA +
-				Db.Request.CREATED + COMMA +
 				Db.Request.STATUS + COMMA +
+				Db.Request.COMMENT + COMMA +
 				Db.Request.IP_ADDR + COMMA +
-				" (" + 
-					"SELECT COUNT(*) FROM " + Db.Request.TABLE_NAME + 
-					" WHERE " + Db.Request.TABLE + " = R." + Db.Request.TABLE + 
-					" AND " + Db.Request.TYPE + " = R." + Db.Request.TYPE + 
-					" AND " + Db.Request.IP_ADDR + " = R." + Db.Request.IP_ADDR + 
-				") AS count" +
-				" FROM " + Db.Request.TABLE_NAME + " AS R" +
-				" GROUP BY " + 
-				Db.Request.TABLE + COMMA + 
-				Db.Request.TYPE + COMMA +
-				Db.Request.IP_ADDR +
+				Db.Request.CREATED +
+				" FROM " + Db.Request.TABLE_NAME +
+				" WHERE STATUS=" + String.valueOf(Request.Status.OPEN.ordinal()) +
 				" ORDER BY ID DESC;";
 		Cursor cursor = database.rawQuery(sql, null);
 		cursor.moveToFirst();
@@ -86,20 +80,26 @@ public class RequestDataSource {
 	}
 
 	public void deleteEntry(Request r) {
-		String sql = "DELETE FROM " + Db.Request.TABLE_NAME + " WHERE id=" + String.valueOf(r.ID) + ";";
+		String sql = "DELETE FROM " + Db.Request.TABLE_NAME + " WHERE id=" + String.valueOf(r.getID()) + ";";
 		database.execSQL(sql);
 	}
 
+	public void closeEntriesByTableID(long tableID) {
+		String sql = "UPDATE " + Db.Request.TABLE_NAME +
+				" SET " + Db.Request.STATUS + "=" + String.valueOf(Status.CLOSED.ordinal()) +
+				" WHERE " + Db.Request.TABLE + "=" + String.valueOf(tableID) + ";";
+		database.execSQL(sql);
+	}
+	
 	private Request cursorToRequest(Cursor cursor) {
 		Request entry = new Request();
-		entry.ID = cursor.getInt(0);
-		entry.table = cursor.getString(1);
-		entry.type = cursor.getString(2);
-		entry.comment = cursor.getString(3);
-		entry.created = cursor.getString(4);
-		entry.status = cursor.getLong(5);
-		entry.ipAddr = cursor.getString(6);		
-		entry.count = cursor.getInt(7);
+		entry.setID(cursor.getLong(0));
+		entry.setTableID(cursor.getLong(1));
+		entry.setType(cursor.getInt(2));
+		entry.setStatus(cursor.getInt(3));
+		entry.setComment(cursor.getString(4));
+		entry.setIpAddr(cursor.getString(5));
+		entry.setCreated(cursor.getString(6));
 		return entry;
 	}
 

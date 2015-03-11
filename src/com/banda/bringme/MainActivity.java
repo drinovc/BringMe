@@ -4,16 +4,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.FileNameMap;
 import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Hashtable;
 import java.util.Map;
 
-import adapters.RequestsAdapter;
+import DataSources.Request;
+import DataSources.RequestDataSource;
+import DataSources.Table;
+import DataSources.TableDataSource;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import adapters.TablesAdapter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
+import android.view.View;
 import android.widget.ListView;
 
 import android.annotation.SuppressLint;
@@ -25,11 +31,10 @@ public class MainActivity extends Activity {
 
 	private WebServer			server;
 	public RequestDataSource	requestDataSource;
-	EditText					text;
-	String						requestString;
-	ListView					requestsList;
-	RequestsAdapter				requestsAdapter;
-	List<Request>				requests;
+	public TableDataSource		tableDataSource;
+	ListView					tablesList;
+	TablesAdapter				tablesAdapter;
+	Hashtable<Long,Table>		tables = new Hashtable<Long,Table>();;
 		
 	public static final String	MIME_JAVASCRIPT	= "text/javascript";
 	public static final String	MIME_CSS		= "text/css";
@@ -45,6 +50,8 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		requestDataSource = new RequestDataSource(this);
+		tableDataSource = new TableDataSource(this);
+		
 		server = new WebServer(this);
 		try {
 			server.start();
@@ -56,43 +63,79 @@ public class MainActivity extends Activity {
 			Log.w("Httpd", "The server could not start.");
 		}
 		Log.w("Httpd", "Web server initialized.");
-		//text = (EditText) findViewById(R.id.requests);
 		
-		requests = new ArrayList<Request>();
+		tableDataSource.open();
+		for(Table table : tableDataSource.getAllEntries()){
+			tables.put(table.getID(),table);
+		}
+		tableDataSource.close();		
 		
-		requestDataSource.open();
-		requests = requestDataSource.getAllEntries();
-		requestDataSource.close();		
-		
-		requestsAdapter = new RequestsAdapter(MainActivity.this, requests);
-		requestsList = (ListView) findViewById(R.id.requestsList);
-		requestsList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		requestsList.setAdapter(requestsAdapter);
+		tablesAdapter = new TablesAdapter(MainActivity.this, tables);
+		tablesList = (ListView) findViewById(R.id.tablesList);
+		tablesList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+		tablesList.setAdapter(tablesAdapter);
+	}
+	
+	public void showTableDetails(View view){
+		long lastClick;
+		Object tag = view.getTag(R.string.last_click);
+		if(tag != null)
+			lastClick = (long) tag;
+		else
+			lastClick = 0;
+		long currentClick = System.currentTimeMillis();
+		view.setTag(R.string.last_click,currentClick);
+		if(currentClick - lastClick < 400){
+			View parent = (View)view.getParent();
+			long id = (long)parent.getTag(R.string.table_id);
+			Table table = tables.get(id);
+			View details = getLayoutInflater().inflate(R.layout.table_details, null, false);
+			((TextView)details.findViewById(R.id.tableID)).setText("Table ID: " + String.valueOf(table.getID()));
+			((TextView)details.findViewById(R.id.tableNumber2)).setText("Table ID: " + String.valueOf(table.getNumber()));
+			((EditText)details.findViewById(R.id.tableName2)).setText("Table ID: " + table.getTableName());
+			((EditText)details.findViewById(R.id.tableDescription2)).setText("Table ID: " + table.getDescription());
+			details.setVisibility(View.VISIBLE);
+			details.setTag(R.string.table_id,id);
+		}
+	}
+	
+	public void removeAlerts(View view){
+		long lastClick;
+		Object tag = view.getTag(R.string.last_click);
+		if(tag != null)
+			lastClick = (long) tag;
+		else
+			lastClick = 0;
+		long currentClick = System.currentTimeMillis();
+		view.setTag(R.string.last_click,currentClick);
+		if(currentClick - lastClick < 400){
+			View parent = (View)view.getParent();
+			long id = (long)parent.getTag(R.string.table_id);
+			requestDataSource.open();
+			requestDataSource.closeEntriesByTableID(id);
+			requestDataSource.close();
+			tables.get(id).setRequests(0);
+			tablesAdapter.notifyDataSetChanged();
+		}
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_tables) {
 			Intent intent = new Intent(this, Tables.class);
-			startActivity(intent);
-			
+			startActivity(intent);			
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	// DON'T FORGET to stop the server
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
@@ -109,12 +152,10 @@ public class MainActivity extends Activity {
 			this.main = main;
 		}
 
-		void refreshRequests() {
+		void refreshTables() {
 			main.runOnUiThread(new Runnable() {
 				public void run() {
-					requestsAdapter.updateRequests(requests);
-					requestsAdapter.notifyDataSetChanged();
-					//text.setText(requestString);
+					
 				}
 			});
 		}
@@ -134,19 +175,18 @@ public class MainActivity extends Activity {
 						if (parameters.containsKey("table")) {
 							
 							Request r = new Request();
-							r.setTable(parameters.get("table"));
-							r.setType(parameters.get("type")); 
+							r.setTableID(Long.parseLong(parameters.get("table")));
+							r.setType(Request.Type.valueOf(parameters.get("type"))); 
 							r.setComment(parameters.get("comment"));
 							r.setIpAddr(header.get("remote-addr"));
 							
 							requestDataSource.open();
 							requestDataSource.addNewRequest(r);
-							requests = requestDataSource.getAllEntries();
 							requestDataSource.close();
 							
-							refreshRequests();
+							refreshTables();
 
-							return new NanoHTTPD.Response("Zahteva poslana. Miza " + r.table + "." + " IP " + r.ipAddr);
+							return new NanoHTTPD.Response("Zahteva poslana. Miza " + String.valueOf(r.getTableID()) + "." + " IP " + r.getIpAddr());
 						}
 					}
 				}
